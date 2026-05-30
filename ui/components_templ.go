@@ -100,7 +100,7 @@ func FeedList(feeds []db.Feed) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 6, "\" hx-target=\"#main-content\" class=\"flex-1 text-left px-3 py-2 text-sm text-zinc-300 hover:bg-zinc-800 rounded transition flex justify-between items-center\"><span class=\"truncate pr-6\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 6, "\" hx-target=\"#main-content\" hx-swap=\"innerHTML\" class=\"flex-1 text-left px-3 py-2 text-sm text-zinc-300 hover:bg-zinc-800 rounded transition flex justify-between items-center\"><span class=\"truncate pr-6\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -208,7 +208,7 @@ func ArticleList(articles []db.Article) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 16, "\" hx-target=\"#main-content\" class=\"text-left text-xl font-bold text-zinc-100 hover:text-indigo-400 transition cursor-pointer\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 16, "\" hx-target=\"#main-content\" hx-swap=\"innerHTML\" class=\"flex-1 text-left px-3 py-2 text-sm text-zinc-300 hover:bg-zinc-800 rounded transition flex justify-between items-center\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

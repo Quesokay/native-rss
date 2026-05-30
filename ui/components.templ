@@ -59,7 +59,7 @@ templ FeedList(feeds []db.Feed) {
 				<button 
 					hx-get={ fmt.Sprintf("/feeds/%d/articles", f.ID) }
 					hx-target="#main-content"
-					class="flex-1 text-left px-3 py-2 text-sm text-zinc-300 hover:bg-zinc-800 rounded transition flex justify-between items-center"
+					hx-swap="innerHTML"  class="flex-1 text-left px-3 py-2 text-sm text-zinc-300 hover:bg-zinc-800 rounded transition flex justify-between items-center"
 				>
 					<span class="truncate pr-6">{ f.URL }</span>
 					if f.UnreadCount > 0 {
@@ -95,7 +95,7 @@ templ ArticleList(articles []db.Article) {
 				<button 
 					hx-get={ fmt.Sprintf("/articles/%d", a.ID) }
 					hx-target="#main-content"
-					class="text-left text-xl font-bold text-zinc-100 hover:text-indigo-400 transition cursor-pointer"
+					hx-swap="innerHTML"  class="flex-1 text-left px-3 py-2 text-sm text-zinc-300 hover:bg-zinc-800 rounded transition flex justify-between items-center"
 				>
 					{ a.Title }
 				</button>
