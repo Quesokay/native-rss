@@ -4,6 +4,7 @@ package main
 import (
 	"log"
 	"net/http"
+	"os"
 	"native-rss/db"
 	"native-rss/internal/handler"
 	"native-rss/internal/parser"
@@ -13,8 +14,13 @@ import (
 func main() {
 	log.Println("Starting Native RSS server...")
 
-	// 1. Initialize SQLite
-	err := db.InitDB("rss.db")
+	// Determine database path based on environment
+	dbPath := "rss.db"
+	if os.Getenv("ENV") == "production" {
+		dbPath = "/app/data/rss.db"
+	}
+
+	err := db.InitDB(dbPath)
 	if err != nil {
 		log.Fatalf("Database initialization failed: %v", err)
 	}
