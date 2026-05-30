@@ -61,3 +61,45 @@ templ FeedList(feeds []db.Feed) {
 		}
 	</nav>
 }
+
+// ArticleList renders the articles for the main reading pane
+templ ArticleList(articles []db.Article) {
+	<div class="max-w-3xl mx-auto space-y-6">
+		if len(articles) == 0 {
+			<p class="text-zinc-500 text-center mt-10">No articles found. (If you just added this feed, wait a few seconds and click it again!)</p>
+		}
+		for _, a := range articles {
+			<article class="p-6 bg-zinc-950 rounded-xl border border-zinc-800 hover:border-zinc-700 transition">
+				
+				<a href={ templ.URL(a.URL) } target="_blank" class="text-xl font-bold text-zinc-100 hover:text-indigo-400 transition">
+					{ a.Title }
+				</a>
+
+				<div class="text-sm text-zinc-400 mt-3 line-clamp-3 leading-relaxed">
+					@templ.Raw(a.Description)
+				</div>
+				
+				<div class="mt-4 flex items-center justify-between text-xs font-medium text-zinc-500">
+					<span>{ a.PublishedAt.Format("Jan 02, 2006 · 3:04 PM") }</span>
+					
+					if !a.IsRead {
+						<button 
+							hx-post={ fmt.Sprintf("/articles/%d/read", a.ID) }
+							hx-swap="outerHTML"
+							class="px-3 py-1 bg-indigo-500/10 hover:bg-indigo-500 hover:text-white text-indigo-400 rounded-full cursor-pointer transition"
+						>
+							Mark as read
+						</button>
+					}
+				</div>
+			</article>
+		}
+	</div>
+}
+
+// ReadBadge replaces the "Mark as read" button after it is clicked
+templ ReadBadge() {
+	<span class="px-3 py-1 bg-zinc-800 text-zinc-500 rounded-full cursor-default transition">
+		Read
+	</span>
+}

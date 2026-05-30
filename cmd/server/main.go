@@ -26,10 +26,15 @@ func main() {
 	mux := http.NewServeMux()
 	
 	// Serve compiled static Tailwind styles
-	mux.Handle("/assets/", http.StripPrefix("/assets/", http.FileServer(http.Dir("ui/assets"))))
+	mux.Handle("GET /assets/", http.StripPrefix("/assets/", http.FileServer(http.Dir("ui/assets"))))
 	
-	// Main application view
-	mux.HandleFunc("/", handler.HandleIndex)
+	// Page Routes
+	mux.HandleFunc("GET /", handler.HandleIndex)
+
+	// HTMX API Routes
+	mux.HandleFunc("POST /feeds", handler.HandleAddFeed)
+	mux.HandleFunc("GET /feeds/{id}/articles", handler.HandleGetArticles)
+	mux.HandleFunc("POST /articles/{id}/read", handler.HandleMarkRead)
 
 	// 4. Start HTTP Server
 	serverAddr := ":8080"

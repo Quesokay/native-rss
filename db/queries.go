@@ -41,3 +41,55 @@ func SaveArticle(feedID int, title, url, description string, publishedAt time.Ti
 	_, err := DB.Exec(query, feedID, title, url, description, publishedAt)
 	return err
 }
+
+// Article represents a row in the articles table
+type Article struct {
+	ID          int
+	FeedID      int
+	Title       string
+	URL         string
+	Description string
+	PublishedAt time.Time
+	IsRead      bool
+}
+
+// AddFeed inserts a new feed URL. 
+// We temporarily use the URL as the title until the background parser updates it.
+func AddFeed(url string) (int, error) {
+	res, err := DB.Exec("INSERT OR IGNORE INTO feeds (title, url) VALUES (?, ?)", url, url)
+	if err != nil {
+		return 0, err
+	}
+	id, _ := res.LastInsertId()
+	return int(id), nil
+}
+
+// GetArticlesByFeed fetches the latest 50 articles for a specific feed
+func GetArticlesByFeed(feedID int) ([]Article, error) {
+	rows, err := DB.Query(`
+		SELECT id, title, url, description, published_at, is_read 
+		FROM articles 
+		WHERE feed_id = ? 
+		ORDER BY published_at DESC LIMIT 50
+	`, feedID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var articles []Article
+	for rows.Next() {
+		var a Article
+		if err := rows.Scan(&a.ID, &a.Title, &a.URL, &a.Description, &a.PublishedAt, &a.IsRead); err != nil {
+			continue
+		}
+		articles = append(articles, a)
+	}
+	return articles, nil
+}
+
+// MarkArticleAsRead sets the is_read flag to true for a specific article
+func MarkArticleAsRead(articleID int) error {
+	_, err := DB.Exec("UPDATE articles SET is_read = 1 WHERE id = ?", articleID)
+	return err
+}
