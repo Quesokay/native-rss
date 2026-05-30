@@ -2,19 +2,28 @@
 package db
 
 import (
-	"log"
 	"time"
 )
 
-// Feed represents a row in the feeds table
+// db/queries.go
+
+// Feed represents a row in the feeds table, now with an UnreadCount
 type Feed struct {
-	ID  int
-	URL string
+	ID          int
+	URL         string
+	UnreadCount int
 }
 
-// GetAllFeeds retrieves all subscribed RSS feeds from the database
+// GetAllFeeds retrieves feeds and counts their unread articles
 func GetAllFeeds() ([]Feed, error) {
-	rows, err := DB.Query("SELECT id, url FROM feeds")
+	// This query joins the articles table and counts only where is_read = 0
+	query := `
+		SELECT f.id, f.url, COUNT(a.id) as unread_count
+		FROM feeds f
+		LEFT JOIN articles a ON f.id = a.feed_id AND a.is_read = 0
+		GROUP BY f.id
+	`
+	rows, err := DB.Query(query)
 	if err != nil {
 		return nil, err
 	}
@@ -23,8 +32,7 @@ func GetAllFeeds() ([]Feed, error) {
 	var feeds []Feed
 	for rows.Next() {
 		var f Feed
-		if err := rows.Scan(&f.ID, &f.URL); err != nil {
-			log.Printf("Error scanning feed row: %v", err)
+		if err := rows.Scan(&f.ID, &f.URL, &f.UnreadCount); err != nil {
 			continue
 		}
 		feeds = append(feeds, f)

@@ -58,3 +58,9 @@ func HandleMarkRead(w http.ResponseWriter, r *http.Request) {
 	// Instead of an empty response, return our new static badge!
 	ui.ReadBadge().Render(r.Context(), w)
 }
+
+// HandleGetFeedList returns only the sidebar feed list for auto-refreshing
+func HandleGetFeedList(w http.ResponseWriter, r *http.Request) {
+	feeds, _ := db.GetAllFeeds()
+	ui.FeedList(feeds).Render(r.Context(), w)
+}

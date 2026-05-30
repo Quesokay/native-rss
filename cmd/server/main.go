@@ -32,6 +32,7 @@ func main() {
 	mux.HandleFunc("GET /", handler.HandleIndex)
 
 	// HTMX API Routes
+	mux.HandleFunc("GET /feeds", handler.HandleGetFeedList)
 	mux.HandleFunc("POST /feeds", handler.HandleAddFeed)
 	mux.HandleFunc("GET /feeds/{id}/articles", handler.HandleGetArticles)
 	mux.HandleFunc("POST /articles/{id}/read", handler.HandleMarkRead)
