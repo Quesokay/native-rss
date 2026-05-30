@@ -1,0 +1,18 @@
+// ui/layout.templ
+package ui
+
+templ Layout(title string, body templ.Component) {
+	<!DOCTYPE html>
+	<html lang="en" class="h-full">
+		<head>
+			<meta charset="UTF-8" />
+			<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+			<title>{ title }</title>
+			<link rel="stylesheet" href="/assets/styles.css" />
+			<script src="https://unpkg.com/htmx.org@1.9.10" integrity="sha384-D1Kt99CQMDuVntoLPM5Ik3vB62fUM4nOBJKcW7v6kJLXFXwb05I7a6fSAR7d90cO" crossorigin="anonymous"></script>
+		</head>
+		<body class="h-full flex flex-col font-sans">
+			@body
+		</body>
+	</html>
+}

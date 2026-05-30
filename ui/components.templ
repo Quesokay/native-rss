@@ -1,0 +1,63 @@
+// ui/components.templ
+package ui
+
+import (
+	"fmt"
+	"native-rss/db"
+)
+
+// AppShell wraps our sidebar and main content layout
+templ AppShell(feeds []db.Feed) {
+	<div class="flex h-full w-full overflow-hidden">
+		<aside class="w-80 bg-zinc-950 border-r border-zinc-800 flex flex-col justify-between">
+			<div class="p-4 flex-1 overflow-y-auto">
+				<h1 class="text-xl font-bold tracking-tight text-zinc-50 mb-6">Native RSS</h1>
+				
+				<form hx-post="/feeds" hx-target="#feed-list" hx-swap="outerHTML" class="mb-6">
+					<div class="flex gap-2">
+						<input 
+							type="url" 
+							name="url" 
+							placeholder="https://example.com/feed.xml" 
+							required
+							class="flex-1 min-w-0 px-3 py-1.5 bg-zinc-900 border border-zinc-700 rounded text-sm text-zinc-100 focus:outline-none focus:border-indigo-500"
+						/>
+						<button 
+							type="submit" 
+							class="px-3 py-1.5 bg-indigo-600 hover:bg-indigo-500 font-medium text-sm rounded text-white transition"
+						>
+							Add
+						</button>
+					</div>
+				</form>
+
+				@FeedList(feeds)
+			</div>
+		</aside>
+
+		<main id="main-content" class="flex-1 bg-zinc-900 overflow-y-auto p-8">
+			<div class="max-w-3xl mx-auto text-zinc-400 text-center py-20">
+				<p class="text-lg">Select a feed from the sidebar to start reading.</p>
+			</div>
+		</main>
+	</div>
+}
+
+// FeedList renders the current feed subscriptions
+templ FeedList(feeds []db.Feed) {
+	<nav id="feed-list" class="space-y-1">
+		<p class="text-xs font-semibold text-zinc-500 uppercase tracking-wider mb-2">Subscriptions</p>
+		if len(feeds) == 0 {
+			<p class="text-sm text-zinc-500 italic p-2">No feeds added yet.</p>
+		}
+		for _, f := range feeds {
+			<button 
+				hx-get={ fmt.Sprintf("/feeds/%d/articles", f.ID) }
+				hx-target="#main-content"
+				class="w-full text-left px-3 py-2 text-sm text-zinc-300 hover:bg-zinc-800 rounded transition truncate block"
+			>
+				{ f.URL }
+			</button>
+		}
+	</nav>
+}

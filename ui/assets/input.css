@@ -1,0 +1,10 @@
+/* ui/assets/input.css */
+@import "tailwindcss";
+
+/* Tell Tailwind v4 to scan your Go/Templ files for utility classes */
+@source "../../**/*.templ";
+@source "../../**/*.go";
+
+body {
+    @apply bg-zinc-900 text-zinc-100 antialiased;
+}

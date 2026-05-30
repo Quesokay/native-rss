@@ -3,7 +3,9 @@ package main
 
 import (
 	"log"
+	"net/http"
 	"native-rss/db"
+	"native-rss/internal/handler"
 	"native-rss/internal/parser"
 	"time"
 )
@@ -11,20 +13,28 @@ import (
 func main() {
 	log.Println("Starting Native RSS server...")
 
-	// 1. Initialize DB
+	// 1. Initialize SQLite
 	err := db.InitDB("rss.db")
 	if err != nil {
 		log.Fatalf("Database initialization failed: %v", err)
 	}
 
-	// [Optional for testing] Let's inject a test feed manually just so the parser has something to do!
-	db.DB.Exec("INSERT OR IGNORE INTO feeds (title, url) VALUES ('TechCrunch', 'https://techcrunch.com/feed/')")
-
-	// 2. Start Background Worker (runs every 15 minutes)
-	// Because this runs in a goroutine, it won't block the rest of our app
+	// 2. Start Background Worker
 	parser.StartWorker(15 * time.Minute)
 
-	// 3. Keep the application running (temporary hack until we add the HTTP server)
-	// We are just telling the main thread to sleep forever so it doesn't exit immediately
-	select {} 
+	// 3. Set Up Route Handlers
+	mux := http.NewServeMux()
+	
+	// Serve compiled static Tailwind styles
+	mux.Handle("/assets/", http.StripPrefix("/assets/", http.FileServer(http.Dir("ui/assets"))))
+	
+	// Main application view
+	mux.HandleFunc("/", handler.HandleIndex)
+
+	// 4. Start HTTP Server
+	serverAddr := ":8080"
+	log.Printf("Web UI available at http://localhost%s", serverAddr)
+	if err := http.ListenAndServe(serverAddr, mux); err != nil {
+		log.Fatalf("Failed to start web server: %v", err)
+	}
 }
