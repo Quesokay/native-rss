@@ -3,19 +3,28 @@ package main
 
 import (
 	"log"
-	"native-rss/db" // Make sure this matches your module name in go.mod
+	"native-rss/db"
+	"native-rss/internal/parser"
+	"time"
 )
 
 func main() {
 	log.Println("Starting Native RSS server...")
 
-	// Initialize the SQLite database
-	// This will create a file named "rss.db" in your root directory
+	// 1. Initialize DB
 	err := db.InitDB("rss.db")
 	if err != nil {
 		log.Fatalf("Database initialization failed: %v", err)
 	}
-	
-	// We will add the HTTP server and background worker here in the next phases
-	log.Println("Setup complete. Server is ready (shutting down for now).")
+
+	// [Optional for testing] Let's inject a test feed manually just so the parser has something to do!
+	db.DB.Exec("INSERT OR IGNORE INTO feeds (title, url) VALUES ('TechCrunch', 'https://techcrunch.com/feed/')")
+
+	// 2. Start Background Worker (runs every 15 minutes)
+	// Because this runs in a goroutine, it won't block the rest of our app
+	parser.StartWorker(15 * time.Minute)
+
+	// 3. Keep the application running (temporary hack until we add the HTTP server)
+	// We are just telling the main thread to sleep forever so it doesn't exit immediately
+	select {} 
 }
