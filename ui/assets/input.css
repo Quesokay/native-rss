@@ -8,3 +8,14 @@
 body {
     @apply bg-zinc-900 text-zinc-100 antialiased;
 }
+
+/* Custom styling for the raw HTML extracted by Readability */
+.article-body p { @apply mb-5 leading-relaxed text-zinc-300; }
+.article-body h1, .article-body h2, .article-body h3, .article-body h4 { @apply text-zinc-50 font-bold mb-4 mt-8; }
+.article-body h2 { @apply text-2xl; }
+.article-body h3 { @apply text-xl; }
+.article-body a { @apply text-indigo-400 underline decoration-indigo-500/30 underline-offset-4 hover:decoration-indigo-500 transition; }
+.article-body img { @apply rounded-xl my-6 mx-auto max-w-full; }
+.article-body ul { @apply list-disc list-inside mb-5 space-y-2 text-zinc-300; }
+.article-body blockquote { @apply border-l-4 border-zinc-700 pl-4 py-1 my-5 text-zinc-400 italic bg-zinc-900/50 rounded-r-lg; }
+.article-body pre { @apply bg-zinc-950 border border-zinc-800 rounded-lg p-4 overflow-x-auto text-sm font-mono text-zinc-300 my-5; }

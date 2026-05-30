@@ -42,6 +42,7 @@ func main() {
 	mux.HandleFunc("POST /feeds", handler.HandleAddFeed)
 	mux.HandleFunc("GET /feeds/{id}/articles", handler.HandleGetArticles)
 	mux.HandleFunc("POST /articles/{id}/read", handler.HandleMarkRead)
+	mux.HandleFunc("GET /articles/{id}", handler.HandleGetSingleArticle)
 
 	// 4. Start HTTP Server
 	serverAddr := ":8080"

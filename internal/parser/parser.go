@@ -3,13 +3,14 @@ package parser
 
 import (
 	"log"
-	"native-rss/db"
+	"net/http"
 	"time"
+	"native-rss/db"
 
+	"github.com/go-shiori/go-readability"
 	"github.com/mmcdole/gofeed"
 )
 
-// FetchAndSaveFeed downloads a single RSS feed and saves its articles
 func FetchAndSaveFeed(feedID int, feedURL string) {
 	log.Printf("Fetching feed: %s", feedURL)
 	
@@ -22,20 +23,45 @@ func FetchAndSaveFeed(feedID int, feedURL string) {
 
 	newArticles := 0
 	for _, item := range parsedFeed.Items {
-		// Handle missing dates gracefully
 		pubDate := time.Now()
 		if item.PublishedParsed != nil {
 			pubDate = *item.PublishedParsed
 		}
 
-		// Insert into the database (duplicates are ignored automatically)
-		err := db.SaveArticle(feedID, item.Title, item.Link, item.Description, pubDate)
-		if err != nil {
-			log.Printf("Failed to save article %s: %v", item.Title, err)
+		// --- UPGRADED READABILITY LOGIC ---
+		var fullContent string
+		
+		client := &http.Client{Timeout: 15 * time.Second}
+		req, err := http.NewRequest("GET", item.Link, nil)
+		
+		if err == nil {
+			// Disguise our app as a standard Chrome browser to bypass basic bot-blockers
+			req.Header.Set("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36")
+			
+			resp, err := client.Do(req)
+			if err == nil {
+				article, err := readability.FromReader(resp.Body, req.URL)
+				if err != nil {
+					log.Printf("Readability parsing failed for %s: %v", item.Link, err)
+					fullContent = item.Description
+				} else {
+					fullContent = article.Content
+				}
+				resp.Body.Close()
+			} else {
+				log.Printf("HTTP fetch failed for %s: %v", item.Link, err)
+				fullContent = item.Description
+			}
 		} else {
+			fullContent = item.Description
+		}
+
+		// Save everything to the database
+		err = db.SaveArticle(feedID, item.Title, item.Link, item.Description, fullContent, pubDate)
+		if err == nil {
 			newArticles++
 		}
 	}
 	
-	log.Printf("Finished %s - Found %d items", feedURL, newArticles)
+	log.Printf("Finished %s - Found %d new items", feedURL, newArticles)
 }
