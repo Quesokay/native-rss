@@ -60,6 +60,9 @@ func FetchAndSaveFeed(feedID int, feedURL string) {
 		err = db.SaveArticle(feedID, item.Title, item.Link, item.Description, fullContent, pubDate)
 		if err == nil {
 			newArticles++
+		} else {
+			// ADD THIS LINE so you know exactly why it fails in the future!
+			log.Printf("Database error saving '%s': %v", item.Title, err)
 		}
 	}
 	
