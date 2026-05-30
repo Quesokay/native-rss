@@ -14,6 +14,7 @@ CREATE TABLE IF NOT EXISTS articles (
     title TEXT NOT NULL,
     url TEXT UNIQUE NOT NULL,
     description TEXT,
+    content TEXT,
     published_at DATETIME,
     is_read BOOLEAN DEFAULT 0,
     FOREIGN KEY(feed_id) REFERENCES feeds(id) ON DELETE CASCADE

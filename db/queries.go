@@ -14,6 +14,18 @@ type Feed struct {
 	UnreadCount int
 }
 
+// Article represents a row in the articles table
+type Article struct {
+	ID          int
+	FeedID      int
+	Title       string
+	URL         string
+	Description string
+	Content		string
+	PublishedAt time.Time
+	IsRead      bool
+}
+
 // GetAllFeeds retrieves feeds and counts their unread articles
 func GetAllFeeds() ([]Feed, error) {
 	// This query joins the articles table and counts only where is_read = 0
@@ -40,25 +52,13 @@ func GetAllFeeds() ([]Feed, error) {
 	return feeds, nil
 }
 
-// SaveArticle inserts a new article. If the URL already exists, it ignores it.
-func SaveArticle(feedID int, title, url, description string, publishedAt time.Time) error {
+func SaveArticle(feedID int, title, url, description, content string, publishedAt time.Time) error {
 	query := `
-		INSERT OR IGNORE INTO articles (feed_id, title, url, description, published_at)
-		VALUES (?, ?, ?, ?, ?)
+		INSERT OR IGNORE INTO articles (feed_id, title, url, description, content, published_at)
+		VALUES (?, ?, ?, ?, ?, ?)
 	`
-	_, err := DB.Exec(query, feedID, title, url, description, publishedAt)
+	_, err := DB.Exec(query, feedID, title, url, description, content, publishedAt)
 	return err
-}
-
-// Article represents a row in the articles table
-type Article struct {
-	ID          int
-	FeedID      int
-	Title       string
-	URL         string
-	Description string
-	PublishedAt time.Time
-	IsRead      bool
 }
 
 // AddFeed inserts a new feed URL. 
@@ -75,7 +75,7 @@ func AddFeed(url string) (int, error) {
 // GetArticlesByFeed fetches the latest 50 articles for a specific feed
 func GetArticlesByFeed(feedID int) ([]Article, error) {
 	rows, err := DB.Query(`
-		SELECT id, title, url, description, published_at, is_read 
+		SELECT id, title, url, description, content, published_at, is_read 
 		FROM articles 
 		WHERE feed_id = ? 
 		ORDER BY published_at DESC LIMIT 50
@@ -88,7 +88,7 @@ func GetArticlesByFeed(feedID int) ([]Article, error) {
 	var articles []Article
 	for rows.Next() {
 		var a Article
-		if err := rows.Scan(&a.ID, &a.Title, &a.URL, &a.Description, &a.PublishedAt, &a.IsRead); err != nil {
+		if err := rows.Scan(&a.ID, &a.Title, &a.URL, &a.Description, &a.Content, &a.PublishedAt, &a.IsRead); err != nil {
 			continue
 		}
 		articles = append(articles, a)
@@ -99,5 +99,25 @@ func GetArticlesByFeed(feedID int) ([]Article, error) {
 // MarkArticleAsRead sets the is_read flag to true for a specific article
 func MarkArticleAsRead(articleID int) error {
 	_, err := DB.Exec("UPDATE articles SET is_read = 1 WHERE id = ?", articleID)
+	return err
+}
+
+// GetArticleByID fetches a single article for the reading view
+func GetArticleByID(id int) (Article, error) {
+	var a Article
+	query := `
+		SELECT id, feed_id, title, url, description, COALESCE(content, ''), published_at, is_read 
+		FROM articles 
+		WHERE id = ?
+	`
+	err := DB.QueryRow(query, id).Scan(
+		&a.ID, &a.FeedID, &a.Title, &a.URL, &a.Description, &a.Content, &a.PublishedAt, &a.IsRead,
+	)
+	return a, err
+}
+
+// DeleteFeed removes a feed and (due to CASCADE) all its associated articles
+func DeleteFeed(feedID int) error {
+	_, err := DB.Exec("DELETE FROM feeds WHERE id = ?", feedID)
 	return err
 }

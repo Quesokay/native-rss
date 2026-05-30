@@ -64,3 +64,33 @@ func HandleGetFeedList(w http.ResponseWriter, r *http.Request) {
 	feeds, _ := db.GetAllFeeds()
 	ui.FeedList(feeds).Render(r.Context(), w)
 }
+
+// HandleGetSingleArticle fetches and renders the full reading view
+func HandleGetSingleArticle(w http.ResponseWriter, r *http.Request) {
+	idStr := r.PathValue("id")
+	articleID, _ := strconv.Atoi(idStr)
+
+	article, err := db.GetArticleByID(articleID)
+	if err != nil {
+		http.Error(w, "Article not found", http.StatusNotFound)
+		return
+	}
+
+	// Automatically mark it as read when opened!
+	db.MarkArticleAsRead(articleID)
+
+	ui.FullArticle(article).Render(r.Context(), w)
+}
+
+
+func HandleDeleteFeed(w http.ResponseWriter, r *http.Request) {
+	idStr := r.PathValue("id")
+	feedID, _ := strconv.Atoi(idStr)
+
+	db.DeleteFeed(feedID)
+
+	// THESE TWO LINES ARE CRITICAL
+	// If they are missing, your sidebar deletes itself from the page!
+	feeds, _ := db.GetAllFeeds()
+	ui.FeedList(feeds).Render(r.Context(), w)
+}

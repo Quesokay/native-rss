@@ -55,24 +55,34 @@ templ FeedList(feeds []db.Feed) {
 		}
 		
 		for _, f := range feeds {
-			<button 
-				hx-get={ fmt.Sprintf("/feeds/%d/articles", f.ID) }
-				hx-target="#main-content"
-				class="w-full text-left px-3 py-2 text-sm text-zinc-300 hover:bg-zinc-800 rounded transition flex justify-between items-center group"
-			>
-				<span class="truncate pr-2">{ f.URL }</span>
-				
-				// Show the unread badge only if there are unread articles!
-				if f.UnreadCount > 0 {
-					<span class="px-2 py-0.5 bg-indigo-600 group-hover:bg-indigo-500 text-white text-[10px] font-bold rounded-full transition">
-						{ strconv.Itoa(f.UnreadCount) }
-					</span>
-				}
-			</button>
+			<div class="flex items-center group relative">
+				<button 
+					hx-get={ fmt.Sprintf("/feeds/%d/articles", f.ID) }
+					hx-target="#main-content"
+					class="flex-1 text-left px-3 py-2 text-sm text-zinc-300 hover:bg-zinc-800 rounded transition flex justify-between items-center"
+				>
+					<span class="truncate pr-6">{ f.URL }</span>
+					if f.UnreadCount > 0 {
+						<span class="px-2 py-0.5 bg-indigo-600 text-white text-[10px] font-bold rounded-full">
+							{ strconv.Itoa(f.UnreadCount) }
+						</span>
+					}
+				</button>
+
+				<button
+					hx-delete={ fmt.Sprintf("/feeds/%d", f.ID) }
+					hx-target="#feed-list"
+					hx-swap="outerHTML"
+					hx-confirm="Are you sure you want to unsubscribe from this feed?"
+					class="absolute right-2 p-1.5 text-zinc-600 hover:text-red-400 hover:bg-red-400/10 rounded opacity-0 group-hover:opacity-100 transition cursor-pointer"
+					title="Delete feed"
+				>
+					<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+				</button>
+			</div>
 		}
 	</nav>
 }
-
 // ArticleList renders the articles for the main reading pane
 templ ArticleList(articles []db.Article) {
 	<div class="max-w-3xl mx-auto space-y-6">
@@ -82,9 +92,13 @@ templ ArticleList(articles []db.Article) {
 		for _, a := range articles {
 			<article class="p-6 bg-zinc-950 rounded-xl border border-zinc-800 hover:border-zinc-700 transition">
 				
-				<a href={ templ.URL(a.URL) } target="_blank" class="text-xl font-bold text-zinc-100 hover:text-indigo-400 transition">
+				<button 
+					hx-get={ fmt.Sprintf("/articles/%d", a.ID) }
+					hx-target="#main-content"
+					class="text-left text-xl font-bold text-zinc-100 hover:text-indigo-400 transition cursor-pointer"
+				>
 					{ a.Title }
-				</a>
+				</button>
 
 				<div class="text-sm text-zinc-400 mt-3 line-clamp-3 leading-relaxed">
 					@templ.Raw(a.Description)
@@ -113,4 +127,38 @@ templ ReadBadge() {
 	<span class="px-3 py-1 bg-zinc-800 text-zinc-500 rounded-full cursor-default transition">
 		Read
 	</span>
+}
+
+
+// FullArticle renders the distraction-free reading view
+templ FullArticle(a db.Article) {
+	<div class="max-w-3xl mx-auto py-4 animate-in fade-in duration-300">
+		<button 
+			hx-get={ fmt.Sprintf("/feeds/%d/articles", a.FeedID) } 
+			hx-target="#main-content" 
+			class="mb-8 flex items-center gap-2 text-sm font-medium text-zinc-500 hover:text-zinc-300 transition"
+		>
+			<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
+			Back to Feed
+		</button>
+
+		<h1 class="text-3xl md:text-4xl font-bold text-zinc-50 mb-6 leading-tight">{ a.Title }</h1>
+		
+		<div class="flex items-center gap-4 text-sm text-zinc-500 mb-10 pb-6 border-b border-zinc-800">
+			<span>{ a.PublishedAt.Format("January 2, 2006 · 3:04 PM") }</span>
+			<a href={ templ.URL(a.URL) } target="_blank" class="hover:text-indigo-400 flex items-center gap-1">
+				View Original 
+				<svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path></svg>
+			</a>
+		</div>
+
+		<div class="article-body text-lg">
+			if a.Content != "" {
+				@templ.Raw(a.Content)
+			} else {
+				@templ.Raw(a.Description)
+				<p class="mt-8 text-zinc-500 italic text-sm">Full text extraction was not available for this article.</p>
+			}
+		</div>
+	</div>
 }
