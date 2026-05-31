@@ -5,16 +5,17 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"time"
+
 	"native-rss/db"
 	"native-rss/internal/handler"
 	"native-rss/internal/parser"
-	"time"
 )
 
 func main() {
 	log.Println("Starting Native RSS server...")
 
-	// Determine database path based on environment
+	// 1. Determine database path based on environment
 	dbPath := "rss.db"
 	if os.Getenv("ENV") == "production" {
 		dbPath = "/app/data/rss.db"
@@ -30,23 +31,27 @@ func main() {
 
 	// 3. Set Up Route Handlers
 	mux := http.NewServeMux()
-	
+
 	// Serve compiled static Tailwind styles
 	mux.Handle("GET /assets/", http.StripPrefix("/assets/", http.FileServer(http.Dir("ui/assets"))))
-	
+
 	// Page Routes
 	mux.HandleFunc("GET /", handler.HandleIndex)
 
 	// HTMX API Routes
 	mux.HandleFunc("GET /feeds", handler.HandleGetFeedList)
 	mux.HandleFunc("POST /feeds", handler.HandleAddFeed)
+	mux.HandleFunc("POST /feeds/import", handler.HandleImportOPML)
 	mux.HandleFunc("GET /feeds/{id}/articles", handler.HandleGetArticles)
 	mux.HandleFunc("POST /articles/{id}/read", handler.HandleMarkRead)
 	mux.HandleFunc("GET /articles/{id}", handler.HandleGetSingleArticle)
 
 	// 4. Start HTTP Server
-	serverAddr := ":8080"
-	log.Printf("Web UI available at http://localhost%s", serverAddr)
+	// CRITICAL FIX: Bind explicitly to 0.0.0.0 for Docker/Fly.io
+	serverAddr := "0.0.0.0:8080"
+	
+	log.Printf("Web UI available locally at http://localhost:8080 (Listening on %s)", serverAddr)
+	
 	if err := http.ListenAndServe(serverAddr, mux); err != nil {
 		log.Fatalf("Failed to start web server: %v", err)
 	}
