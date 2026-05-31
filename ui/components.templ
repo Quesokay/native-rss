@@ -32,6 +32,28 @@ templ AppShell(feeds []db.Feed) {
 					</div>
 				</form>
 
+				<form 
+					hx-post="/feeds/import" 
+					hx-target="#feed-list" 
+					hx-swap="outerHTML" 
+					hx-encoding="multipart/form-data" 
+					class="mb-6 flex gap-2 items-center"
+				>
+					<input 
+						type="file" 
+						name="opml_file" 
+						accept=".opml,.xml" 
+						required 
+						class="flex-1 min-w-0 text-xs text-zinc-400 file:mr-2 file:py-1.5 file:px-2 file:rounded file:border-0 file:font-medium file:bg-zinc-800 file:text-zinc-300 hover:file:bg-zinc-700 transition cursor-pointer border border-zinc-700 bg-zinc-900 rounded p-1" 
+					/>
+					<button 
+						type="submit" 
+						class="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 font-medium text-sm rounded text-white transition cursor-pointer shadow-sm whitespace-nowrap"
+					>
+						Import
+					</button>
+				</form>
+
 				@FeedList(feeds)
 			</div>
 		</aside>
@@ -83,6 +105,7 @@ templ FeedList(feeds []db.Feed) {
 		}
 	</nav>
 }
+
 // ArticleList renders the articles for the main reading pane
 templ ArticleList(articles []db.Article) {
 	<div class="max-w-3xl mx-auto space-y-6">
@@ -95,7 +118,7 @@ templ ArticleList(articles []db.Article) {
 				<button 
 					hx-get={ fmt.Sprintf("/articles/%d", a.ID) }
 					hx-target="#main-content"
-					hx-swap="innerHTML"  class="flex-1 text-left px-3 py-2 text-sm text-zinc-300 hover:bg-zinc-800 rounded transition flex justify-between items-center"
+					hx-swap="innerHTML"  class="flex-1 text-left px-3 py-2 text-sm text-zinc-300 hover:bg-zinc-800 rounded transition flex justify-between items-center w-full"
 				>
 					{ a.Title }
 				</button>
@@ -129,14 +152,13 @@ templ ReadBadge() {
 	</span>
 }
 
-
 // FullArticle renders the distraction-free reading view
 templ FullArticle(a db.Article) {
 	<div class="max-w-3xl mx-auto py-4 animate-in fade-in duration-300">
 		<button 
 			hx-get={ fmt.Sprintf("/feeds/%d/articles", a.FeedID) } 
 			hx-target="#main-content" 
-			class="mb-8 flex items-center gap-2 text-sm font-medium text-zinc-500 hover:text-zinc-300 transition"
+			class="mb-8 flex items-center gap-2 text-sm font-medium text-zinc-500 hover:text-zinc-300 transition cursor-pointer"
 		>
 			<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
 			Back to Feed
