@@ -47,8 +47,7 @@ func main() {
 	mux.HandleFunc("GET /articles/{id}", handler.HandleGetSingleArticle)
 
 	// 4. Start HTTP Server
-	// CRITICAL FIX: Bind explicitly to 0.0.0.0 for Docker/Fly.io
-	serverAddr := "0.0.0.0:8080"
+	serverAddr := ":8080"
 	
 	log.Printf("Web UI available locally at http://localhost:8080 (Listening on %s)", serverAddr)
 	
