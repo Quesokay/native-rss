@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"time"
 	"native-rss/db"
+	"strings"
 
 	"github.com/go-shiori/go-readability"
 	"github.com/mmcdole/gofeed"
@@ -62,12 +63,20 @@ func FetchAndSaveFeed(feedID int, feedURL string) {
 			enclosureURL = item.Enclosures[0].URL
 		}
 
-		// 2. Pass the enclosureURL to your newly updated database function!
+		// 2. Pass the enclosureURL to your database function
 		err = db.SaveArticle(feedID, item.Title, item.Link, item.Description, fullContent, pubDate, enclosureURL)
+		
 		if err == nil {
 			newArticles++
 		} else {
-			// ADD THIS LINE so you know exactly why it fails in the future!
+			// THE FIX: If the database complains about a Foreign Key, the feed was deleted!
+			// We immediately 'return' to kill the loop so we don't waste time scraping the rest.
+			if strings.Contains(err.Error(), "FOREIGN KEY constraint failed") {
+				log.Printf("Feed [%s] was deleted by user. Aborting sync.", feedURL)
+				return 
+			}
+			
+			// Otherwise, log standard database errors
 			log.Printf("Database error saving '%s': %v", item.Title, err)
 		}
 	}
