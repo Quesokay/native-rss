@@ -24,6 +24,7 @@ type Article struct {
 	Content		string
 	PublishedAt time.Time
 	IsRead      bool
+	EnclosureURL string
 }
 
 // GetAllFeeds retrieves feeds and counts their unread articles
@@ -52,12 +53,12 @@ func GetAllFeeds() ([]Feed, error) {
 	return feeds, nil
 }
 
-func SaveArticle(feedID int, title, url, description, content string, publishedAt time.Time) error {
+func SaveArticle(feedID int, title, url, description, content string, publishedAt time.Time, enclosureURL string) error {
 	query := `
-		INSERT OR IGNORE INTO articles (feed_id, title, url, description, content, published_at)
-		VALUES (?, ?, ?, ?, ?, ?)
+		INSERT OR IGNORE INTO articles (feed_id, title, url, description, content, published_at, enclosure_url)
+		VALUES (?, ?, ?, ?, ?, ?, ?)
 	`
-	_, err := DB.Exec(query, feedID, title, url, description, content, publishedAt)
+	_, err := DB.Exec(query, feedID, title, url, description, content, publishedAt, enclosureURL)
 	return err
 }
 
@@ -106,12 +107,12 @@ func MarkArticleAsRead(articleID int) error {
 func GetArticleByID(id int) (Article, error) {
 	var a Article
 	query := `
-		SELECT id, feed_id, title, url, description, COALESCE(content, ''), published_at, is_read 
+		SELECT id, feed_id, title, url, description, COALESCE(content, ''), published_at, is_read, COALESCE(enclosure_url, '')
 		FROM articles 
 		WHERE id = ?
 	`
 	err := DB.QueryRow(query, id).Scan(
-		&a.ID, &a.FeedID, &a.Title, &a.URL, &a.Description, &a.Content, &a.PublishedAt, &a.IsRead,
+		&a.ID, &a.FeedID, &a.Title, &a.URL, &a.Description, &a.Content, &a.PublishedAt, &a.IsRead, &a.EnclosureURL,
 	)
 	return a, err
 }

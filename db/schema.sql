@@ -17,6 +17,7 @@ CREATE TABLE IF NOT EXISTS articles (
     content TEXT,
     published_at DATETIME,
     is_read BOOLEAN DEFAULT 0,
+    enclosure_url TEXT DEFAULT '',
     FOREIGN KEY(feed_id) REFERENCES feeds(id) ON DELETE CASCADE
 );
 

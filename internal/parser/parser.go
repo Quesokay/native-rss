@@ -56,8 +56,14 @@ func FetchAndSaveFeed(feedID int, feedURL string) {
 			fullContent = item.Description
 		}
 
-		// Save everything to the database
-		err = db.SaveArticle(feedID, item.Title, item.Link, item.Description, fullContent, pubDate)
+		// 1. Check if this RSS item has an attached audio file
+		enclosureURL := ""
+		if len(item.Enclosures) > 0 {
+			enclosureURL = item.Enclosures[0].URL
+		}
+
+		// 2. Pass the enclosureURL to your newly updated database function!
+		err = db.SaveArticle(feedID, item.Title, item.Link, item.Description, fullContent, pubDate, enclosureURL)
 		if err == nil {
 			newArticles++
 		} else {
