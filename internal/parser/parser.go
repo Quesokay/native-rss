@@ -24,9 +24,12 @@ func FetchAndSaveFeed(feedID int, feedURL string) {
 
 	newArticles := 0
 	for _, item := range parsedFeed.Items {
+		// 1. Safely parse the date with a fallback to time.Now()
 		pubDate := time.Now()
 		if item.PublishedParsed != nil {
 			pubDate = *item.PublishedParsed
+		} else if item.UpdatedParsed != nil {
+			pubDate = *item.UpdatedParsed
 		}
 
 		// --- UPGRADED READABILITY LOGIC ---

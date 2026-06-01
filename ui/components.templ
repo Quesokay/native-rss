@@ -125,9 +125,7 @@ templ ArticleList(articles []db.Article) {
 					{ a.Title }
 				</button>
 
-				<div class="text-sm text-zinc-400 mt-3 line-clamp-3 leading-relaxed">
-					@templ.Raw(a.Description)
-				</div>
+				
 				
 				<div class="mt-4 flex items-center justify-between text-xs font-medium text-zinc-500">
 					<span>{ a.PublishedAt.Format("Jan 02, 2006 · 3:04 PM") }</span>
