@@ -45,6 +45,7 @@ func main() {
 	mux.HandleFunc("GET /feeds/{id}/articles", handler.HandleGetArticles)
 	mux.HandleFunc("POST /articles/{id}/read", handler.HandleMarkRead)
 	mux.HandleFunc("GET /articles/{id}", handler.HandleGetSingleArticle)
+	mux.HandleFunc("DELETE /feeds/{id}", handler.HandleDeleteFeed)
 
 	// 4. Start HTTP Server
 	serverAddr := ":8080"
