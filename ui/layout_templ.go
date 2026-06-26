@@ -44,7 +44,7 @@ func Layout(title string, body templ.Component) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "</title><link rel=\"stylesheet\" href=\"/assets/styles.css\"><script src=\"https://unpkg.com/htmx.org@1.9.12\"></script></head><body class=\"h-full flex flex-col font-sans\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "</title><link rel=\"stylesheet\" href=\"/assets/styles.css?v=newsprint\"><script src=\"https://unpkg.com/htmx.org@1.9.12\"></script></head><body>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

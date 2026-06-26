@@ -1,21 +1,89 @@
 /* ui/assets/input.css */
 @import "tailwindcss";
 
-/* Tell Tailwind v4 to scan your Go/Templ files for utility classes */
-@source "../../**/*.templ";
-@source "../../**/*.go";
+/* Tell Tailwind v4 to scan the entire ui/ directory */
+@source "../";
+
+/* Import classic newspaper typography */
+@import url('https://fonts.googleapis.com/css2?family=Merriweather:ital,wght@0,300;0,400;0,700;1,400;1,700&family=Playfair+Display:ital,wght@0,400..900;1,400..900&display=swap');
 
 body {
-    @apply bg-zinc-900 text-zinc-100 antialiased;
+    /* The Paper: a warm off-white. The Ink: a deep, saturated dark gray */
+    @apply bg-[#f4f1ea] text-stone-900 antialiased;
+    font-family: 'Merriweather', serif;
+}
+
+h1, h2, h3, h4, h5, h6, .headline {
+    font-family: 'Playfair Display', serif;
 }
 
 /* Custom styling for the raw HTML extracted by Readability */
-.article-body p { @apply mb-5 leading-relaxed text-zinc-300; }
-.article-body h1, .article-body h2, .article-body h3, .article-body h4 { @apply text-zinc-50 font-bold mb-4 mt-8; }
+.article-body p { @apply mb-5 leading-relaxed text-stone-800 text-justify; }
+.article-body h1, .article-body h2, .article-body h3, .article-body h4 { @apply text-stone-950 font-bold mb-4 mt-8 font-serif; }
 .article-body h2 { @apply text-2xl; }
 .article-body h3 { @apply text-xl; }
-.article-body a { @apply text-indigo-400 underline decoration-indigo-500/30 underline-offset-4 hover:decoration-indigo-500 transition; }
-.article-body img { @apply rounded-xl my-6 mx-auto max-w-full; }
-.article-body ul { @apply list-disc list-inside mb-5 space-y-2 text-zinc-300; }
-.article-body blockquote { @apply border-l-4 border-zinc-700 pl-4 py-1 my-5 text-zinc-400 italic bg-zinc-900/50 rounded-r-lg; }
-.article-body pre { @apply bg-zinc-950 border border-zinc-800 rounded-lg p-4 overflow-x-auto text-sm font-mono text-zinc-300 my-5; }
+.article-body a { @apply text-stone-900 underline decoration-stone-400 underline-offset-4 hover:decoration-stone-900 transition-colors; }
+
+/* The Newsprint Image Effect */
+.article-body img { 
+    @apply my-6 mx-auto max-w-full border border-stone-300 shadow-sm; 
+    filter: grayscale(100%) contrast(120%) sepia(20%);
+}
+
+.article-body ul { @apply list-disc list-inside mb-5 space-y-2 text-stone-800; }
+.article-body blockquote { @apply border-l-4 border-stone-800 pl-4 py-1 my-5 text-stone-700 italic bg-stone-200/50; }
+.article-body pre { @apply bg-stone-200 border border-stone-300 p-4 overflow-x-auto text-sm font-mono text-stone-800 my-5 shadow-inner; }
+
+/* ... keep your existing body and typography rules above this ... */
+
+.article-body p { @apply mb-5 leading-relaxed text-stone-800 text-justify; }
+.article-body h1, .article-body h2, .article-body h3, .article-body h4 { @apply text-stone-950 font-bold mb-4 mt-8 font-serif; }
+.article-body h2 { @apply text-2xl; }
+.article-body h3 { @apply text-xl; }
+.article-body a { @apply text-stone-900 underline decoration-stone-400 underline-offset-4 hover:decoration-stone-900 transition-colors; }
+
+/* The Newsprint Image Effect */
+.article-body img { 
+    @apply my-6 mx-auto max-w-full border border-stone-300 shadow-sm; 
+    filter: grayscale(100%) contrast(120%) sepia(20%);
+}
+
+.article-body ul { @apply list-disc list-inside mb-5 space-y-2 text-stone-800; }
+.article-body pre { @apply bg-stone-200 border border-stone-300 p-4 overflow-x-auto text-sm font-mono text-stone-800 my-5 shadow-inner; }
+
+/* 1. Authentic Newspaper Pull Quotes */
+.article-body blockquote { 
+    @apply border-y-2 border-l-0 border-stone-900 py-6 my-8 mx-4 md:mx-12 text-stone-950 text-xl md:text-2xl font-serif italic text-center leading-snug bg-transparent; 
+}
+
+/* 2. Paper & Ink Custom Scrollbar (Webkit) */
+::-webkit-scrollbar {
+    width: 10px;
+}
+::-webkit-scrollbar-track {
+    @apply bg-[#f4f1ea] border-l border-stone-300;
+}
+::-webkit-scrollbar-thumb {
+    @apply bg-stone-400/50 hover:bg-stone-500/80 rounded-none;
+}
+
+/* 3. The Physical Print Protocol */
+@media print {
+    /* Force true black and white, hide backgrounds */
+    body { @apply bg-white text-black; }
+    
+    /* Hide all web UI elements (forms, buttons, the index) */
+    form, button, #feed-list, audio { 
+        display: none !important; 
+    }
+    
+    /* Ensure the Masthead and Articles take up the full printed page */
+    .max-w-5xl { max-width: 100% !important; }
+    .columns-1 { columns: 2 !important; gap: 2rem !important; }
+    
+    /* Prevent articles from breaking across physical pages awkwardly */
+    article { break-inside: avoid; page-break-inside: avoid; }
+    
+    /* Smaller text for physical print */
+    .article-body { font-size: 11pt; leading: 1.2; }
+}
